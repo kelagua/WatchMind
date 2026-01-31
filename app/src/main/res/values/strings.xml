@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">WatchMind</string>
+    <string name="hint_api_key">API Key</string>
+    <string name="hint_base_url">Base URL (OpenAI compatible)</string>
+    <string name="hint_model">Model (e.g. gpt-4o-mini)</string>
+    <string name="hint_message">Say something</string>
+    <string name="send">Send</string>
+    <string name="save">Save</string>
+    <string name="settings">Settings</string>
+    <string name="chat">Chat</string>
+    <string name="status_idle">Ready</string>
+    <string name="status_sending">Sending...</string>
+    <string name="status_error">Error</string>
+</resources>
