@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
@@ -45,10 +46,9 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.icons.Icons
 import androidx.wear.compose.material.icons.rounded.Settings
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -225,7 +225,6 @@ fun SettingsScreen(viewModel: ChatViewModel) {
 
 class ChatViewModel(private val appContext: Context) : ViewModel() {
     private val client = OkHttpClient()
-    private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val preferences = appContext.getSharedPreferences("watchmind_prefs", Context.MODE_PRIVATE)
 
     var uiState by mutableStateOf(
@@ -278,7 +277,7 @@ class ChatViewModel(private val appContext: Context) : ViewModel() {
             statusText = appContext.getString(R.string.status_sending)
         ).withSendState()
 
-        ioScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val responseText = runChatRequest(updatedMessages)
             val status = if (responseText.errorMessage != null) {
                 appContext.getString(R.string.status_error)
@@ -290,7 +289,9 @@ class ChatViewModel(private val appContext: Context) : ViewModel() {
             } else {
                 updatedMessages
             }
-            uiState = uiState.copy(messages = finalMessages, statusText = status).withSendState()
+            withContext(Dispatchers.Main) {
+                uiState = uiState.copy(messages = finalMessages, statusText = status).withSendState()
+            }
         }
     }
 
